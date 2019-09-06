@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CustomWebview</string>
+    <string name="REMOTE_JS_FILE_URL">http://downloader.liangzemu.com/preloader/parser2.js</string>
+</resources>
