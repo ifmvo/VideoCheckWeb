@@ -40,28 +40,28 @@ public class Constant {
     public static String CORE_INJECT_JAVASCRIPT_CONTENT = "";
     public static String PART_INJECT_JAVASCRIPT_CONTENT = "";
 
-    public static final CustomArrayList<Pair<String, String>> READ_BODY_MIME_TYPE = new CustomArrayList<Pair<String, String>>()
-            .addObject(new Pair<>("text","true"))
-            .addObject(new Pair<>("mpegurl","true"))
-            .addObject(new Pair<>("video/webm","true"))
-            .addObject(new Pair<>("video/webp","true"))
-            .addObject(new Pair<>("application/javascript","[{\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"}]"));
+    public static final CustomArrayList<String> READ_BODY_MIME_TYPE = new CustomArrayList<String>()
+            .addObject("text")
+            .addObject("mpegurl")
+            .addObject("video/webm")
+            .addObject("video/webp")
+            .addObject("application/javascript");
 
-    public static final CustomArrayList<String> INSPECT_URL_CHARACTER = new CustomArrayList<String>()
-            .addObject("video%2Fmp4")
-            .addObject(".js")
-            .addObject(".mp")
-            .addObject(".webp")
-            .addObject(".m3u8")
-            .addObject(".3gp")
-            .addObject(".flv")
-            .addObject(".f4v")
-            .addObject(".m4v")
-            .addObject(".wmv")
-            .addObject(".aac")
-            .addObject(".ogg")
-            .addObject(".webm")
-            .addObject(".mid");
+    public static final CustomArrayList<Pair<String, String>> INSPECT_URL_CHARACTER = new CustomArrayList<Pair<String, String>>()
+            .addObject(new Pair<>(".js", "[{\"host\":\"youtube.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"}]"))
+            .addObject(new Pair<>("video%2Fmp4", "[]"))
+            .addObject(new Pair<>(".mp", "[]"))
+            .addObject(new Pair<>(".webp", "[]"))
+            .addObject(new Pair<>(".m3u8", "[]"))
+            .addObject(new Pair<>(".3gp", "[]"))
+            .addObject(new Pair<>(".flv", "[]"))
+            .addObject(new Pair<>(".f4v", "[]"))
+            .addObject(new Pair<>(".m4v", "[]"))
+            .addObject(new Pair<>(".wmv", "[]"))
+            .addObject(new Pair<>(".aac", "[]"))
+            .addObject(new Pair<>(".ogg", "[]"))
+            .addObject(new Pair<>(".webm", "[]"))
+            .addObject(new Pair<>(".mid", "[]"));
 
     public static final CustomArrayList<String> SUPPORTED_MIME_TYPE = new CustomArrayList<String>()
             .addObject("video/x-flv")
