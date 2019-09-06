@@ -18,6 +18,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     if (!TextUtils.isEmpty(map.get("url"))) {
                         Log.e("LOG_TAG", "video definition ====> " + map.get("quality"));
                         Constant.whetherOnlyUrl(map.get("url"), "checkPlay/JSCallback");
+                        MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "捕获到视频链接!", Toast.LENGTH_SHORT).show());
                     }
                 }
             }
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
                                     body = body.toUpperCase();
                                     if (body.startsWith("#EXTM3U") && !body.contains("#EXT-X-STREAM-INF") && body.contains("#EXT-X-ENDLIST")) {
                                         Constant.whetherOnlyUrl(url, mimeType);
+                                        MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "捕获到视频链接!", Toast.LENGTH_SHORT).show());
                                     }
                                 }
                             }
@@ -250,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                             if (this.checkVideoTypeSupported(mimeType)) {
                                 if (!url.contains(".m4s")) {
                                     Constant.whetherOnlyUrl(url, mimeType);
+                                    MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "捕获到视频链接!", Toast.LENGTH_SHORT).show());
                                 }
                                 String acceptRange = headerMap.get("accept-ranges");
                                 if (acceptRange != null && acceptRange.toLowerCase().equals("bytes")) {
@@ -257,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             } else if (mimeType.equals("application/octet-stream") && url.contains(".mp4") && !url.contains(".m4s") && !url.contains(".key") && !url.contains(".m3u8") && !url.contains(".ts")) {
                                 Constant.whetherOnlyUrl(url, mimeType);
+                                MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "捕获到视频链接!", Toast.LENGTH_SHORT).show());
                             }
                         }
                     }
