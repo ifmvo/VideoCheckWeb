@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.lzm.customwebview.R;
+import com.lzm.customwebview.common.SharedPref;
 
 /*
  * (●ﾟωﾟ●)
@@ -25,10 +26,13 @@ public class WebListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_web_list);
 
         EditText edUrl = findViewById(R.id.et_url);
-        Button btnAction = findViewById(R.id.btn_action);
+        String lastUrl = SharedPref.getInstance().getString("lastUrl", "");
+        edUrl.setText(lastUrl);
 
+        Button btnAction = findViewById(R.id.btn_action);
         btnAction.setOnClickListener(view -> {
             String url = edUrl.getText().toString();
+            SharedPref.getInstance().putString("lastUrl", url);
             MainActivity.action(WebListActivity.this, url);
         });
 
