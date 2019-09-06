@@ -1,0 +1,10 @@
+已测试兼容并可正常检测的网站列表：
+https://www.filmibeat.com/videos/
+https://hindi.indiatvnews.com/
+https://xhamster.com
+https://www.hotstar.com/news/ 已调整兼容
+https://www.instagram.com
+https://m.facebook.com/  已调整兼容
+https://www.liveleak.com/
+https://www.dailymotion.com 已调整兼容
+https://mobile.twitter.com/twittervideo 修改UA->Mozilla/5.0 (Linux; Android;) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/38.0.0.0 Mobile Safari/537.36
