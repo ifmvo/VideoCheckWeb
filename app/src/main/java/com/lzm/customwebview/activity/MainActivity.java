@@ -2,12 +2,11 @@ package com.lzm.customwebview.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -19,6 +18,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -45,11 +49,31 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
 
+    private String mUrl = "https://www.google.com/";//默认的url
+
+    /**
+     * 入口
+     */
+    public static void action(@NonNull Context context, @NonNull String url) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("url", url);
+        context.startActivity(intent);
+    }
+
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //获取 URL
+        Intent intent = getIntent();
+        if (intent.hasExtra("url")) {
+            String intentUrl = intent.getStringExtra("url");
+            if (!TextUtils.isEmpty(intentUrl)) {
+                mUrl = intentUrl.trim();
+            }
+        }
 
         WebView.setWebContentsDebuggingEnabled(true);
 
@@ -79,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebChromeClient(new CustomWebChromeClient());
         webView.addJavascriptInterface(new CustomJavascriptCallback(), "androidVideoBridge");
 
-        webView.loadUrl(Constant.LOAD_URL);
+        webView.loadUrl(mUrl);
 
         Button btnRefresh = findViewById(R.id.btn_refresh);
         btnRefresh.setOnClickListener(view -> webView.reload());
@@ -88,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
     private class CustomJavascriptCallback {
         @JavascriptInterface
         public void checkPlay(String message) {
-            List<Map<String, String>> mapList = JSONObject.parseObject(message, new TypeReference<List<Map<String, String>>>() {});
+            List<Map<String, String>> mapList = JSONObject.parseObject(message, new TypeReference<List<Map<String, String>>>() {
+            });
             if (mapList != null && !mapList.isEmpty()) {
                 for (Map<String, String> map : mapList) {
                     if (!TextUtils.isEmpty(map.get("url"))) {
@@ -261,8 +286,9 @@ public class MainActivity extends AppCompatActivity {
             for (Pair<String, String> pair : Constant.INSPECT_URL_CHARACTER) {
                 if (url.contains(pair.first)) {
                     if (!pair.second.equals("[]")) {
-                        List<Map<String, String>> filterMapList = JSONObject.parseObject(pair.second, new TypeReference<List<Map<String, String>>>(){});
-                        for (Map<String, String> filterMap: filterMapList) {
+                        List<Map<String, String>> filterMapList = JSONObject.parseObject(pair.second, new TypeReference<List<Map<String, String>>>() {
+                        });
+                        for (Map<String, String> filterMap : filterMapList) {
                             if (host.contains(filterMap.get("host"))) {
                                 boolean startsWith = !filterMap.containsKey("startsWith") || url.startsWith(filterMap.get("startsWith"));
                                 boolean contains = !filterMap.containsKey("contains") || url.contains(filterMap.get("contains"));

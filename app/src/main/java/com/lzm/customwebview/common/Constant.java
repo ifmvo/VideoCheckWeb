@@ -10,7 +10,7 @@ import okhttp3.OkHttpClient;
 
 public class Constant {
 
-    public static String LOAD_URL = "https://twitter.com/TwitterVideo/media";
+    public static String LOAD_URL = "https://google.com/";
 
     private static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
 

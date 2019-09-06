@@ -27,11 +27,15 @@
         <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="false" />
         <meta-data android:name="android.webkit.WebView.MetricsOptOut" android:value="true" />
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"/>
+
+        <activity android:name=".activity.WebListActivity" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
     </application>
 
