@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android;) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/38.0.0.0 Mobile Safari/537.36");
+        //webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android;) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/38.0.0.0 Mobile Safari/537.36");
 
         webView.setWebViewClient(new CustomWebViewClient());
         webView.setWebChromeClient(new CustomWebChromeClient());
@@ -138,7 +138,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            String url = request.getUrl().toString(), accept = "*/*", shame = url.substring(0, 5).toUpperCase(), host = request.getUrl().getHost();
+            String  url = request.getUrl().toString(),
+                    host = request.getUrl().getHost(),
+                    shame = url.substring(0, 5).toUpperCase(),
+                    accept = url.endsWith(".js") ? "application/javascript" : "*/*";
             if ("GET".equals(request.getMethod()) && shame.startsWith("HTTP")) {
                 Headers.Builder builder = new Headers.Builder();
                 Map<String, String> requestHeaders = request.getRequestHeaders();
@@ -150,14 +153,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (accept.contains("html") || isNeedInspectUrl(host, url)) {
+                    Log.e("LOG_TAG", "---------------------------------------------");
+                    Log.e("LOG_TAG", "isNeedInspectUrl ==== " + url);
+                    Log.e("LOG_TAG", "---------------------------------------------");
                     url = ("HTTPS".equals(shame) && host.contains("_")) ? "http" + url.substring(5) : url;
-                    return this.handleWebViewRequest(new Request.Builder().headers(builder.build()).url(url).build());
+                    return this.handleWebViewRequest(new Request.Builder().headers(builder.build()).url(url).build(), request.isForMainFrame());
                 }
             }
             return super.shouldInterceptRequest(view, request);
         }
 
-        private WebResourceResponse handleWebViewRequest(Request request) {
+        private WebResourceResponse handleWebViewRequest(Request request, boolean isMainFrame) {
             Response response = null;
             try {
                 response = Constant.HTTP_CLIENT.newCall(request).execute();
@@ -185,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        headerMap.remove("content-security-policy");
                     }
                     MediaType mediaType = response.body().contentType();
                     if (mediaType != null) {
@@ -194,16 +201,18 @@ public class MainActivity extends AppCompatActivity {
                             byte[] bytes = response.body().bytes();
                             String body = new String(bytes, encoding);
                             if (!TextUtils.isEmpty(body)) {
-                                if (mimeType.equals("application/javascript")) {
+                                if (mimeType.contains("javascript")) {
                                     final byte[] tempBytes = bytes;
-                                    MainActivity.this.runOnUiThread(() -> webView.loadUrl("javascript:(function(){window.DEFAULT_YOUTUBE_BASE_JS=window.atob('" + Base64.encodeBytes(tempBytes) + "')})();"));
-                                } else if (mimeType.equals("text/html") && bytes.length > 500) {
-                                    String bodyCopy = body.toLowerCase();
-                                    int prefixIndex = bodyCopy.indexOf("<html"), endIndex = body.indexOf("</html>", prefixIndex + 1);
+                                    MainActivity.this.runOnUiThread(() -> webView.loadUrl("javascript:(function(){window.AUXILIARY_PARSE_JAVASCRIPT=window.atob('" + Base64.encodeBytes(tempBytes) + "')})();"));
+                                } else if (!isMainFrame && mimeType.equals("text/html") && bytes.length > 500) {
+                                    String prefix = body.substring(0, 50).toLowerCase();
+                                    int prefixIndex = prefix.indexOf("<html"), endIndex = body.indexOf(">", prefixIndex + 1);
                                     if (-1 < prefixIndex && prefixIndex < 20 && prefixIndex < endIndex && endIndex < 200) {
-                                        bytes = (body + Constant.PART_INJECT_JAVASCRIPT_CONTENT).getBytes(encoding);
+                                        Log.e("LOG_TAG", "---------------------------------------------");
+                                        Log.e("LOG_TAG", "Injected url ==== " + url);
+                                        Log.e("LOG_TAG", "---------------------------------------------");
+                                        bytes = (body.substring(0, endIndex + 1) + Constant.PART_INJECT_JAVASCRIPT_CONTENT + body.substring(endIndex + 1)).getBytes(encoding);
                                     }
-
                                 } else if (isNeedBlock) {
                                     body = body.toUpperCase();
                                     if (body.startsWith("#EXTM3U") && !body.contains("#EXT-X-STREAM-INF") && body.contains("#EXT-X-ENDLIST")) {

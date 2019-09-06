@@ -10,7 +10,7 @@ import okhttp3.OkHttpClient;
 
 public class Constant {
 
-    public static String LOAD_URL = "https://twitter.com/TwitterVideo/media";
+    public static String LOAD_URL = "https://hindi.indiatvnews.com/entertainment/bollywood-rajasthani-song-kar-kar-phone-bula-lyi-akeli-viral-dancer-muskan-defeats-sapna-choudhary-watch-video-637307";
 
     private static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
 
@@ -34,7 +34,6 @@ public class Constant {
             .addObject("steampowered.com")
             .addObject("liveleak.com")
             .addObject("instagram.com")
-            .addObject("twitter.com")
             .addObject("xhamster");
 
     public static String CORE_INJECT_JAVASCRIPT_CONTENT = "";
