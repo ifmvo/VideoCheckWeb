@@ -10,7 +10,8 @@ import okhttp3.OkHttpClient;
 
 public class Constant {
 
-    private static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
+    public static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
+
 
     public static final CustomArrayList<String> JAVASCRIPT_HANDLER_WHITE_LIST = new CustomArrayList<>()
             .addObject("viu.tv")
@@ -86,12 +87,5 @@ public class Constant {
             .retryOnConnectionFailure(true)
             .build();
 
-    public static void whetherOnlyUrl(String url, String mimeType) {
-        if (CAPTURED_MEDIA_URL_SET.add(url)) {
-            Log.e("LOG_TAG", "---------------------------------------------");
-            Log.e("LOG_TAG", "mimeType ==== " + mimeType);
-            Log.e("LOG_TAG", "url ==== " + url);
-            Log.e("LOG_TAG", "---------------------------------------------");
-        }
-    }
+
 }
