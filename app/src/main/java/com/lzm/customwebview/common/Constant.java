@@ -1,8 +1,9 @@
 package com.lzm.customwebview.common;
 
-import android.util.Log;
 import android.util.Pair;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,7 @@ public class Constant {
 
     public static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
 
+    public static final ConcurrentHashMap<String, Map<String, String>> REQUEST_HEADER_CACHE = new ConcurrentHashMap<>();
 
     public static final CustomArrayList<String> JAVASCRIPT_HANDLER_WHITE_LIST = new CustomArrayList<>()
             .addObject("viu.tv")
@@ -86,6 +88,4 @@ public class Constant {
             .cookieJar(new WebViewCookieHandler())
             .retryOnConnectionFailure(true)
             .build();
-
-
 }
