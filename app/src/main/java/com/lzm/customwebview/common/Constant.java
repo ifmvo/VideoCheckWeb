@@ -10,8 +10,6 @@ import okhttp3.OkHttpClient;
 
 public class Constant {
 
-    public static String LOAD_URL = "https://hindi.indiatvnews.com/entertainment/bollywood-rajasthani-song-kar-kar-phone-bula-lyi-akeli-viral-dancer-muskan-defeats-sapna-choudhary-watch-video-637307";
-
     private static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
 
     public static final CustomArrayList<String> JAVASCRIPT_HANDLER_WHITE_LIST = new CustomArrayList<>()

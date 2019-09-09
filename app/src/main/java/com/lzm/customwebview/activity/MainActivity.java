@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        //webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android;) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/38.0.0.0 Mobile Safari/537.36");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_5 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G36 Safari/601.1");
 
         webView.setWebViewClient(new CustomWebViewClient());
         webView.setWebChromeClient(new CustomWebChromeClient());
@@ -180,9 +180,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (accept.contains("html") || isNeedInspectUrl(host, url)) {
-                    Log.e("LOG_TAG", "---------------------------------------------");
-                    Log.e("LOG_TAG", "isNeedInspectUrl ==== " + url);
-                    Log.e("LOG_TAG", "---------------------------------------------");
                     url = ("HTTPS".equals(shame) && host.contains("_")) ? "http" + url.substring(5) : url;
                     return this.handleWebViewRequest(new Request.Builder().headers(builder.build()).url(url).build(), request.isForMainFrame());
                 }
@@ -231,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (mimeType.contains("javascript")) {
                                     final byte[] tempBytes = bytes;
                                     MainActivity.this.runOnUiThread(() -> webView.loadUrl("javascript:(function(){window.AUXILIARY_PARSE_JAVASCRIPT=window.atob('" + Base64.encodeBytes(tempBytes) + "')})();"));
-                                } else if (!isMainFrame && mimeType.equals("text/html") && bytes.length > 500) {
+                                } else if (!isMainFrame && mimeType.equals("text/html") && bytes.length > 300) {
                                     String prefix = body.substring(0, 50).toLowerCase();
                                     int prefixIndex = prefix.indexOf("<html"), endIndex = body.indexOf(">", prefixIndex + 1);
                                     if (-1 < prefixIndex && prefixIndex < 20 && prefixIndex < endIndex && endIndex < 200) {
