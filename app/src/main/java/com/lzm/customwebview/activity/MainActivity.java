@@ -4,12 +4,16 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -18,6 +22,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +53,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private FrameLayout mFlViewContainer;
     private WebView webView;
 
     private String mUrl = "https://www.google.com/";//默认的url
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         webView = findViewById(R.id.webView);
+        mFlViewContainer = findViewById(R.id.fl_view_container);
 
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setAllowFileAccess(true);
@@ -98,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_5 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G36 Safari/601.1");
+//        webView.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_5 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G36 Safari/601.1");
 
         webView.setWebViewClient(new CustomWebViewClient());
         webView.setWebChromeClient(new CustomWebChromeClient());
@@ -171,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            String  url = request.getUrl().toString(),
+            String url = request.getUrl().toString(),
                     host = request.getUrl().getHost(),
                     shame = url.substring(0, 5).toUpperCase(),
                     accept = url.endsWith(".js") ? "application/javascript" : "*/*";
@@ -340,6 +347,78 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    class CustomWebChromeClient extends WebChromeClient {
+
+        private CustomViewCallback mCustomViewCallback;
+        //  横屏时，显示视频的view
+        private View mCustomView;
+
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            if (newProgress > 50) {
+                view.loadUrl("javascript:" + Constant.CORE_INJECT_JAVASCRIPT_CONTENT);
+            }
+            super.onProgressChanged(view, newProgress);
+        }
+
+        @Override
+        public void onShowCustomView(View view, CustomViewCallback callback) {
+            super.onShowCustomView(view, callback);
+
+            //如果view 已经存在，则隐藏
+            if (mCustomView != null) {
+                callback.onCustomViewHidden();
+                return;
+            }
+            mCustomView = view;
+            mCustomView.setVisibility(View.VISIBLE);
+            mCustomViewCallback = callback;
+            mFlViewContainer.addView(mCustomView);
+            mFlViewContainer.setVisibility(View.VISIBLE);
+            mFlViewContainer.bringToFront();
+
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        @Override
+        public void onHideCustomView() {
+            super.onHideCustomView();
+
+            if (mCustomView == null) {
+                return;
+            }
+            mCustomView.setVisibility(View.GONE);
+            mFlViewContainer.removeView(mCustomView);
+            mCustomView = null;
+            mFlViewContainer.setVisibility(View.GONE);
+            try {
+                mCustomViewCallback.onCustomViewHidden();
+            } catch (Exception e) {
+            }
+//            titleView.setVisibility(View.VISIBLE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
+
+        }
+    }
+
+    /**
+     * 横竖屏切换监听
+     */
+    @Override
+    public void onConfigurationChanged(Configuration config) {
+        super.onConfigurationChanged(config);
+        switch (config.orientation) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                break;
+            case Configuration.ORIENTATION_PORTRAIT:
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                break;
+        }
+    }
+
     public void whetherOnlyUrl(String url, String mimeType) {
         if (Constant.CAPTURED_MEDIA_URL_SET.add(url)) {
             MainActivity.this.runOnUiThread(new Runnable() {
@@ -354,15 +433,5 @@ public class MainActivity extends AppCompatActivity {
             Log.e("LOG_TAG", "---------------------------------------------");
         }
     }
-    
-}
 
-class CustomWebChromeClient extends WebChromeClient {
-    @Override
-    public void onProgressChanged(WebView view, int newProgress) {
-        if (newProgress > 50) {
-            view.loadUrl("javascript:" + Constant.CORE_INJECT_JAVASCRIPT_CONTENT);
-        }
-        super.onProgressChanged(view, newProgress);
-    }
 }
