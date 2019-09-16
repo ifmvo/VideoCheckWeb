@@ -260,8 +260,6 @@ public class MainActivity extends AppCompatActivity {
                         } else if (isNeedBlock) {
                             if (this.checkVideoTypeSupported(mimeType)) {
                                 if (!url.contains(".m4s")) {
-                                    headerMap.put("access-control-allow-credentials", "true");
-                                    headerMap.put("access-control-allow-origin", uri.getScheme() + "://" + uri.getHost());
                                     whetherOnlyUrl(url, mimeType,"");
                                 }
                                 if (headerMap.get("accept-ranges") != null && headerMap.get("accept-ranges").toLowerCase().equals("bytes")) {
