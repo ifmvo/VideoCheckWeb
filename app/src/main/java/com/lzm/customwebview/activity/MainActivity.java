@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     MediaType mediaType = response.body().contentType();
                     if (mediaType != null) {
-                        boolean isNeedBlock = this.notJavascriptWhiteUrl(request.url().host());
+                        boolean isNeedBlock = this.notJavascriptWhiteUrl(uri.getHost());
                         mimeType = (mediaType.type() + "/" + mediaType.subtype()).toLowerCase();
                         encoding = mediaType.charset() != null ? mediaType.charset() : encoding;
                         if (this.isNeedReadBody(mimeType)) {
@@ -256,22 +256,23 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            return okHttpResponseToWebResourceResponse(request.header("range"), headerMap, mimeType, encoding.name(), response.code(), bytes);
+                            return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), bytes);
                         } else if (isNeedBlock) {
                             if (this.checkVideoTypeSupported(mimeType)) {
                                 if (!url.contains(".m4s")) {
+                                    headerMap.put("access-control-allow-credentials", "true");
+                                    headerMap.put("access-control-allow-origin", uri.getScheme() + "://" + uri.getHost());
                                     whetherOnlyUrl(url, mimeType,"");
                                 }
-                                String acceptRange = headerMap.get("accept-ranges");
-                                if (acceptRange != null && acceptRange.toLowerCase().equals("bytes")) {
-                                    return okHttpResponseToWebResourceResponse(request.header("range"), headerMap, mimeType, encoding.name(), response.code(), response.body().bytes());
+                                if (headerMap.get("accept-ranges") != null && headerMap.get("accept-ranges").toLowerCase().equals("bytes")) {
+                                    return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), response.body().bytes());
                                 }
                             } else if (mimeType.equals("application/octet-stream") && url.contains(".mp4") && !url.contains(".m4s") && !url.contains(".key") && !url.contains(".m3u8") && !url.contains(".ts")) {
                                 whetherOnlyUrl(url, mimeType, "");
                             }
                         }
                     }
-                    return okHttpResponseToWebResourceResponse(request.header("range"), headerMap, mimeType, encoding.name(), response.code(), response.body().byteStream());
+                    return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), response.body().byteStream());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -282,15 +283,12 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
-        private WebResourceResponse okHttpResponseToWebResourceResponse(String requestRange, Map<String, String> headerMap, String mimeType, String encoding, Integer statusCode, Object body) {
-            if (TextUtils.isEmpty(requestRange)) {
-                if (body instanceof InputStream) {
-                    return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, (InputStream) body);
-                } else {
-                    return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, new ByteArrayInputStream((byte[]) body));
-                }
+        private WebResourceResponse okHttpResponseToWebResourceResponse(Map<String, String> headerMap, String mimeType, String encoding, Integer statusCode, Object body) {
+            if (body instanceof InputStream) {
+                return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, (InputStream) body);
+            } else {
+                return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, new ByteArrayInputStream((byte[]) body));
             }
-            return null;
         }
 
         /**

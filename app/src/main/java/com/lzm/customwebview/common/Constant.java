@@ -48,9 +48,8 @@ public class Constant {
             .addObject("application/javascript");
 
     public static final CustomArrayList<Pair<String, String>> INSPECT_URL_CHARACTER = new CustomArrayList<Pair<String, String>>()
-            .addObject(new Pair<>(".js", "[{\"host\":\"youtube.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"}]"))
+            .addObject(new Pair<>(".js", "[{\"host\":\"youtube.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"},{\"host\":\"ytimg.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"}]"))
             .addObject(new Pair<>("video%2Fmp4", "[]"))
-            .addObject(new Pair<>(".mp", "[]"))
             .addObject(new Pair<>(".webp", "[]"))
             .addObject(new Pair<>(".m3u8", "[]"))
             .addObject(new Pair<>(".3gp", "[]"))
@@ -61,7 +60,9 @@ public class Constant {
             .addObject(new Pair<>(".aac", "[]"))
             .addObject(new Pair<>(".ogg", "[]"))
             .addObject(new Pair<>(".webm", "[]"))
-            .addObject(new Pair<>(".mid", "[]"));
+            .addObject(new Pair<>(".mid", "[]"))
+            .addObject(new Pair<>(".mp3", "[]"))
+            .addObject(new Pair<>(".mp4", "[]"));
 
     public static final CustomArrayList<String> SUPPORTED_MIME_TYPE = new CustomArrayList<String>()
             .addObject("video/x-flv")
