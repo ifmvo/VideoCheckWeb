@@ -119,7 +119,10 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl(mUrl);
 
         Button btnRefresh = findViewById(R.id.btn_refresh);
-        btnRefresh.setOnClickListener(view -> webView.reload());
+        btnRefresh.setOnClickListener(view -> {
+            Constant.CAPTURED_MEDIA_URL_SET.clear();
+            webView.reload();
+        });
     }
 
     private class CustomJavascriptCallback {
