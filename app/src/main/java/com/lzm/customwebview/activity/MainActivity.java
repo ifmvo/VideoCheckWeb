@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent.hasExtra("url")) {
             String intentUrl = intent.getStringExtra("url");
             if (!TextUtils.isEmpty(intentUrl)) {
+                Constant.CAPTURED_MEDIA_URL_SET.clear();
                 mUrl = intentUrl.trim();
             }
         }
