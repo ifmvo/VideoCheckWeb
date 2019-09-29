@@ -58,6 +58,7 @@ public class WebListFragment extends BaseRecyclerViewFragment<UrlBean, BaseViewH
     @Override
     protected void getData(int currentPage) {
         List<UrlBean> urlBeanList = new ArrayList<>();
+        urlBeanList.add(new UrlBean("https://vimeo.com/stock/collection/5855140"));
         urlBeanList.add(new UrlBean("https://hindi.indiatvnews.com/"));
         urlBeanList.add(new UrlBean("https://xhamster.com", "有色网站慎入"));
         urlBeanList.add(new UrlBean("https://www.hotstar.com/news/", "必须印度Vpn才能播放"));
