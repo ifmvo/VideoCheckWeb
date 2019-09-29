@@ -1,6 +1,8 @@
-package com.lzm.customwebview.common;
+package com.lzm.videocheckweb.common;
 
 import android.webkit.CookieManager;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 
 public class WebViewCookieHandler implements CookieJar {
+
     private CookieManager mCookieManager = CookieManager.getInstance();
 
     @Override
@@ -20,6 +23,7 @@ public class WebViewCookieHandler implements CookieJar {
         }
     }
 
+    @NotNull
     @Override
     public List<Cookie> loadForRequest(HttpUrl url) {
         String urlString = url.toString();

@@ -7,20 +7,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
-import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -30,31 +21,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.lzm.customwebview.R;
-import com.lzm.customwebview.common.Base64;
 import com.lzm.customwebview.common.Constant;
+import com.lzm.videocheckweb.VideoCheckWebChromeClient;
+import com.lzm.videocheckweb.VideoCheckWebView;
+import com.lzm.videocheckweb.VideoCheckWebViewClient;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * WebView 横屏播放时，播放器的容器
+     */
     private FrameLayout mFlViewContainer;
-    private WebView webView;
+    /**
+     * 自定义 WebView
+     */
+    private VideoCheckWebView webView;
+    /**
+     * 当前正在访问的页面 URL
+     */
     private String mUrl;
 
     /**
@@ -82,39 +74,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        WebView.setWebContentsDebuggingEnabled(true);
-
         // 权限检查
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
         }
 
+
         webView = findViewById(R.id.webView);
         mFlViewContainer = findViewById(R.id.fl_view_container);
 
-        webView.getSettings().setSupportZoom(true);
-        webView.getSettings().setAllowFileAccess(true);
-        webView.getSettings().setUseWideViewPort(true);
-        webView.getSettings().setDatabaseEnabled(true);
-        webView.getSettings().setNeedInitialFocus(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setBuiltInZoomControls(false);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setAllowFileAccessFromFileURLs(true);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-
-        /**
-         * CHECKPOINT
-         * UA默认为webview自带的U，只有特殊明确有UA要求的才setting UA
-         */
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_5 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G36 Safari/601.1");
-
         webView.setWebViewClient(new CustomWebViewClient());
         webView.setWebChromeClient(new CustomWebChromeClient());
-        webView.addJavascriptInterface(new CustomJavascriptCallback(), "androidVideoBridge");
+
+        /*
+         * 设置 UserAgent Map json
+         */
+        Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {}.getType());
+        webView.setUserAgentMap(map);
+
+        /*
+         * 设置js 回调监听
+         */
+        webView.setJavascriptCallback(this::whetherOnlyUrl);
 
         webView.loadUrl(mUrl);
 
@@ -125,23 +106,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private class CustomJavascriptCallback {
-        @JavascriptInterface
-        public void checkPlay(String message) {
-            List<Map<String, String>> mapList = JSONObject.parseObject(message, new TypeReference<List<Map<String, String>>>() { });
-            if (mapList != null && !mapList.isEmpty()) {
-                for (Map<String, String> map : mapList) {
-                    if (!TextUtils.isEmpty(map.get("url"))) {
-                        whetherOnlyUrl(map.get("url"), "checkPlay/JSCallback", map.get("quality"));
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        WebView webView = findViewById(R.id.webView);
         if (webView.canGoBack()) {
             webView.goBack();
             return;
@@ -158,257 +124,80 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ((WebView) findViewById(R.id.webView)).onPause();
+        webView.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        ((WebView) findViewById(R.id.webView)).destroy();
+        webView.destroy();
         super.onDestroy();
     }
 
-    class CustomWebViewClient extends WebViewClient {
-
-        private Uri uri = Uri.parse(mUrl);
+    class CustomWebViewClient extends VideoCheckWebViewClient {
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (url.startsWith("http")) {
-                view.loadUrl(url);
-                return true;
-            }
-            return false;
+        public void webViewLoadJs(String jsCode) {
+            //WebView 执行 js 代码
+            webView.loadUrl(jsCode);
         }
 
         @Override
-        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            String  accept = "*/*",
-                    url = request.getUrl().toString(),
-                    host = request.getUrl().getHost(),
-                    shame = url.substring(0, 5).toUpperCase();
-            if ("GET".equals(request.getMethod()) && shame.startsWith("HTTP")) {
-                Headers.Builder builder = new Headers.Builder();
-                Map<String, String> requestHeaders = request.getRequestHeaders();
-                if (requestHeaders != null && !requestHeaders.isEmpty()) {
-                    for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
-                        String key = entry.getKey().toLowerCase(), value = entry.getValue();
-                        if ("accept".equals(key)) accept = value;
-                        builder.add(key, value);
-                    }
-                    Constant.REQUEST_HEADER_CACHE.put(url, requestHeaders);
-                }
-                if (accept.contains("html") || isNeedInspectUrl(host, url)) {
-                    url = ("HTTPS".equals(shame) && host.contains("_")) ? "http" + url.substring(5) : url;
-                    return this.handleWebViewRequest(new Request.Builder().headers(builder.build()).url(url).build(), request.isForMainFrame());
-                }
-            }
-            return super.shouldInterceptRequest(view, request);
+        public List<String> getJsHandlerWhiteList() {
+            //返回 js 白名单 str
+            return Constant.JAVASCRIPT_HANDLER_WHITE_LIST;
         }
 
-        private WebResourceResponse handleWebViewRequest(Request request, boolean isMainFrame) {
-            Response response = null;
-            try {
-                response = Constant.HTTP_CLIENT.newCall(request).execute();
-                if (response.isSuccessful() && response.body() != null) {
-                    String url = request.url().url().toString(), mimeType = "application/octet-stream";
-                    Charset encoding = StandardCharsets.UTF_8;
-                    Map<String, String> headerMap = new HashMap<>();
-                    if (!response.headers().names().isEmpty()) {
-                        Set<String> headerSet = response.headers().names();
-                        for (String key : headerSet) {
-                            headerMap.put(key.toLowerCase(), response.header(key));
-                        }
-                        if ("true".equalsIgnoreCase(headerMap.get("access-control-allow-credentials"))) {
-                            String origin = TextUtils.isEmpty(request.header("origin")) ? request.header("referer") : request.header("origin");
-                            if (!TextUtils.isEmpty(origin)) {
-                                Uri originUri = Uri.parse(origin);
-                                headerMap.put("access-control-allow-origin", originUri.getScheme() + "://" + originUri.getHost());
-                            } else {
-                                if (!TextUtils.isEmpty(headerMap.get("access-control-allow-origin"))) {
-                                    if ("*".equals(headerMap.get("access-control-allow-origin"))) {
-                                        headerMap.put("access-control-allow-origin", uri.getScheme() + "://" + uri.getHost());
-                                    }
-                                } else {
-                                    headerMap.remove("access-control-allow-credentials");
-                                }
-                            }
-                        }
-                        headerMap.remove("content-security-policy");
-                    }
-                    MediaType mediaType = response.body().contentType();
-                    if (mediaType != null) {
-                        boolean isNeedBlock = this.notJavascriptWhiteUrl(uri.getHost());
-                        mimeType = (mediaType.type() + "/" + mediaType.subtype()).toLowerCase();
-                        encoding = mediaType.charset() != null ? mediaType.charset() : encoding;
-                        if (this.isNeedReadBody(mimeType)) {
-                            byte[] bytes = response.body().bytes();
-                            String body = new String(bytes, encoding);
-                            if (!TextUtils.isEmpty(body)) {
-                                if (mimeType.contains("javascript")) {
-                                    final byte[] tempBytes = bytes;
-                                    MainActivity.this.runOnUiThread(() -> webView.loadUrl("javascript:(function(){window.AUXILIARY_PARSE_JAVASCRIPT=window.atob('" + Base64.encodeBytes(tempBytes) + "')})();"));
-                                } else if (!isMainFrame && mimeType.equals("text/html") && bytes.length > 300) {
-                                    String prefix = body.substring(0, 50).toLowerCase();
-                                    int prefixIndex = prefix.indexOf("<html"), endIndex = body.indexOf(">", prefixIndex + 1);
-                                    if (-1 < prefixIndex && prefixIndex < 20 && prefixIndex < endIndex && endIndex < 200) {
-                                        bytes = (body.substring(0, endIndex + 1) + Constant.PART_INJECT_JAVASCRIPT_CONTENT + body.substring(endIndex + 1)).getBytes(encoding);
-                                    }
-                                } else if (isNeedBlock) {
-                                    body = body.toUpperCase();
-                                    if (body.startsWith("#EXTM3U") && !body.contains("#EXT-X-STREAM-INF") && body.contains("#EXT-X-ENDLIST")) {
-                                        whetherOnlyUrl(url, mimeType, "");
-                                    }
-                                }
-                            }
-                            return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), bytes);
-                        } else if (isNeedBlock) {
-                            if (this.checkVideoTypeSupported(mimeType)) {
-                                if (!url.contains(".m4s")) {
-                                    whetherOnlyUrl(url, mimeType,"");
-                                }
-                                if (headerMap.get("accept-ranges") != null && headerMap.get("accept-ranges").toLowerCase().equals("bytes")) {
-                                    return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), response.body().bytes());
-                                }
-                            } else if (mimeType.equals("application/octet-stream") && url.contains(".mp4") && !url.contains(".m4s") && !url.contains(".key") && !url.contains(".m3u8") && !url.contains(".ts")) {
-                                whetherOnlyUrl(url, mimeType, "");
-                            }
-                        }
-                    }
-                    return okHttpResponseToWebResourceResponse(headerMap, mimeType, encoding.name(), response.code(), response.body().byteStream());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                if (response != null) {
-                    response.close();
-                }
-            }
-            return null;
+        @Override
+        public String getPartInjectJSContent() {
+            //返回 part js code
+            return Constant.PART_INJECT_JAVASCRIPT_CONTENT;
         }
 
-        private WebResourceResponse okHttpResponseToWebResourceResponse(Map<String, String> headerMap, String mimeType, String encoding, Integer statusCode, Object body) {
-            if (body instanceof InputStream) {
-                return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, (InputStream) body);
-            } else {
-                return new WebResourceResponse(mimeType, encoding, statusCode, "OK", headerMap, new ByteArrayInputStream((byte[]) body));
-            }
+        @Override
+        public void localCheckVideoResult(String url) {
+            //本地拦截的回调
+            whetherOnlyUrl(url, "");
         }
 
-        /**
-         * CHECKPOINT
-         * JAVASCRIPT_HANDLER_WHITE_LIST优先使用后端配置，后端配置获取失败则使用本地配置
-         */
-        private boolean notJavascriptWhiteUrl(String domain) {
-            for (String charSeq : Constant.JAVASCRIPT_HANDLER_WHITE_LIST) {
-                if (domain.contains(charSeq)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /**
-         * CHECKPOINT
-         * INSPECT_URL_CHARACTER优先使用后端配置，后端配置获取失败则使用本地配置
-         */
-        private boolean isNeedInspectUrl(String host, String url) {
-            for (Pair<String, String> pair : Constant.INSPECT_URL_CHARACTER) {
-                if (url.contains(pair.first)) {
-                    if (!pair.second.equals("[]")) {
-                        List<Map<String, String>> filterMapList = JSONObject.parseObject(pair.second, new TypeReference<List<Map<String, String>>>() {});
-                        for (Map<String, String> filterMap : filterMapList) {
-                            if (host.contains(filterMap.get("host"))) {
-                                boolean startsWith = !filterMap.containsKey("startsWith") || url.startsWith(filterMap.get("startsWith"));
-                                boolean contains = !filterMap.containsKey("contains") || url.contains(filterMap.get("contains"));
-                                boolean endsWith = !filterMap.containsKey("endsWith") || url.endsWith(filterMap.get("endsWith"));
-                                return startsWith && contains && endsWith;
-                            }
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private boolean checkVideoTypeSupported(String type) {
-            for (String mime : Constant.SUPPORTED_MIME_TYPE) {
-                if (type.contains(mime)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private boolean isNeedReadBody(String mimeType) {
-            for (String mime : Constant.READ_BODY_MIME_TYPE) {
-                if (mimeType.contains(mime)) {
-                    return true;
-                }
-            }
-            return false;
+        @Override
+        public String getCurrentUrl() {
+            //返回当前正在浏览的 URL
+            return mUrl;
         }
     }
 
-    class CustomWebChromeClient extends WebChromeClient {
-
-        private CustomViewCallback mCustomViewCallback;
-        //  横屏时，显示视频的view
-        private View mCustomView;
+    class CustomWebChromeClient extends VideoCheckWebChromeClient {
 
         @Override
-        public void onProgressChanged(WebView view, int newProgress) {
-            if (newProgress > 50) {
-                view.loadUrl("javascript:" + Constant.CORE_INJECT_JAVASCRIPT_CONTENT);
-            }
-            super.onProgressChanged(view, newProgress);
+        public ViewGroup getFullScreenVideoContainer() {
+            //WebView 横屏播放时，播放器的容器
+            return mFlViewContainer;
         }
 
         @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
-            super.onShowCustomView(view, callback);
+        public String getCoreInjectJSContent() {
+            //返回 core js code
+            return Constant.CORE_INJECT_JAVASCRIPT_CONTENT;
+        }
 
-            //如果view 已经存在，则隐藏
-            if (mCustomView != null) {
-                callback.onCustomViewHidden();
-                return;
-            }
-            mCustomView = view;
-            mCustomView.setVisibility(View.VISIBLE);
-            mCustomViewCallback = callback;
-            mFlViewContainer.addView(mCustomView);
-            mFlViewContainer.setVisibility(View.VISIBLE);
-            mFlViewContainer.bringToFront();
+        @Override
+        public void requestOrientationPortrait() {
+            //请求竖屏
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
+        @Override
+        public void requestOrientationLandscape() {
+            //请求横屏
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-
-        @Override
-        public void onHideCustomView() {
-            super.onHideCustomView();
-
-            if (mCustomView == null) {
-                return;
-            }
-            mCustomView.setVisibility(View.GONE);
-            mFlViewContainer.removeView(mCustomView);
-            mCustomView = null;
-            mFlViewContainer.setVisibility(View.GONE);
-            try {
-                mCustomViewCallback.onCustomViewHidden();
-            } catch (Exception e) {
-            }
-//            titleView.setVisibility(View.VISIBLE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
-
         }
     }
 
     /**
-     * 横竖屏切换监听
+     * 横竖屏切换监听，设置状态栏显示与隐藏
      */
     @Override
-    public void onConfigurationChanged(Configuration config) {
+    public void onConfigurationChanged(@NotNull Configuration config) {
         super.onConfigurationChanged(config);
         switch (config.orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
@@ -422,13 +211,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void whetherOnlyUrl(String url, String mimeType, String quality) {
+    private void whetherOnlyUrl(String url, String quality) {
         if (Constant.CAPTURED_MEDIA_URL_SET.add(url)) {
-            MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "捕获到视频链接,清晰度:" + quality, Toast.LENGTH_SHORT).show());
+            MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "quality: " + quality + "\nurl ====> " + url, Toast.LENGTH_LONG).show());
             Log.e("LOG_TAG", "---------------------------------------------");
             Log.e("LOG_TAG", "media url ====> " + url);
-            Log.e("LOG_TAG", "mimeType ====> " + mimeType);
-            Log.e("LOG_TAG", "headers ====> " + Constant.REQUEST_HEADER_CACHE.get(url));
+            Log.e("LOG_TAG", "quality   ====> " + quality);
             Log.e("LOG_TAG", "---------------------------------------------");
         }
     }

@@ -28,4 +28,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
     implementation 'com.github.ifmvo:QuickList:1.0.6'
+
+    implementation project(path: ':VideoCheckWeb')
 }

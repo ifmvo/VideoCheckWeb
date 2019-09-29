@@ -17,7 +17,7 @@ public class LoadLocalJSFile {
                 try (InputStreamReader inputReader = new InputStreamReader(context.getAssets().open("core.js"));
                      BufferedReader bufReader = new BufferedReader(inputReader)
                 ) {
-                    String line = "";
+                    String line;
                     while ((line = bufReader.readLine()) != null) {
                         Constant.CORE_INJECT_JAVASCRIPT_CONTENT += line;
                     }
@@ -35,7 +35,7 @@ public class LoadLocalJSFile {
                 try (InputStreamReader inputReader = new InputStreamReader(context.getAssets().open("part.js"));
                      BufferedReader bufReader = new BufferedReader(inputReader)
                 ) {
-                    String line = "";
+                    String line;
                     while ((line = bufReader.readLine()) != null) {
                         Constant.PART_INJECT_JAVASCRIPT_CONTENT += line;
                     }

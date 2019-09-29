@@ -1,15 +1,12 @@
 package com.lzm.customwebview.common;
 
-import android.util.Pair;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
 
 public class Constant {
+
+    public static final String userAgentMapJson = "{\"twitter.com\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/12.0 Mobile/15A372 Safari/604.1\",\"erosnow.com\":\"Mozilla/5.0 (X11; Linux x86_64:68.0) Gecko/20100101 Firefox/68.0\",\"indiatimes.com\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/12.0 Mobile/15A372 Safari/604.1\",\"nba.com\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/12.0 Mobile/15A372 Safari/604.1\",\"ncaa.com\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_5 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G36 Safari/601.1\"}";
 
     public static final CopyOnWriteArraySet<String> CAPTURED_MEDIA_URL_SET = new CopyOnWriteArraySet<>();
 
@@ -40,53 +37,5 @@ public class Constant {
     public static String CORE_INJECT_JAVASCRIPT_CONTENT = "";
     public static String PART_INJECT_JAVASCRIPT_CONTENT = "";
 
-    public static final CustomArrayList<String> READ_BODY_MIME_TYPE = new CustomArrayList<String>()
-            .addObject("text")
-            .addObject("mpegurl")
-            .addObject("video/webm")
-            .addObject("video/webp")
-            .addObject("application/javascript");
 
-    public static final CustomArrayList<Pair<String, String>> INSPECT_URL_CHARACTER = new CustomArrayList<Pair<String, String>>()
-            .addObject(new Pair<>(".js", "[{\"host\":\"youtube.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"},{\"host\":\"ytimg.com\",\"contains\":\".com/yts/jsbin/\",\"endsWith\":\"/base.js\"}]"))
-            .addObject(new Pair<>("video%2Fmp4", "[]"))
-            .addObject(new Pair<>(".webp", "[]"))
-            .addObject(new Pair<>(".m3u8", "[]"))
-            .addObject(new Pair<>(".3gp", "[]"))
-            .addObject(new Pair<>(".flv", "[]"))
-            .addObject(new Pair<>(".f4v", "[]"))
-            .addObject(new Pair<>(".m4v", "[]"))
-            .addObject(new Pair<>(".wmv", "[]"))
-            .addObject(new Pair<>(".aac", "[]"))
-            .addObject(new Pair<>(".ogg", "[]"))
-            .addObject(new Pair<>(".webm", "[]"))
-            .addObject(new Pair<>(".mid", "[]"))
-            .addObject(new Pair<>(".mp3", "[]"))
-            .addObject(new Pair<>(".mp4", "[]"));
-
-    public static final CustomArrayList<String> SUPPORTED_MIME_TYPE = new CustomArrayList<String>()
-            .addObject("video/x-flv")
-            .addObject("video/x-f4v")
-            .addObject("video/mp4")
-            .addObject("video/3gpp")
-            .addObject("video/quicktime")
-            .addObject("video/x-msvideo")
-            .addObject("video/x-ms-wmv")
-            .addObject("video/x-m4v")
-            .addObject("video/webm")
-            .addObject("video/webp")
-            .addObject("video/mpeg")
-            .addObject("audio/aac")
-            .addObject("audio/mp")
-            .addObject("audio/ogg")
-            .addObject("audio/wav")
-            .addObject("audio/webm")
-            .addObject("audio/mid");
-
-    public static OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .cookieJar(new WebViewCookieHandler())
-            .retryOnConnectionFailure(true)
-            .build();
 }
