@@ -10,6 +10,7 @@ import android.webkit.WebView;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.lzm.videocheckweb.common.VideoCheckConstant;
 
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,19 @@ import java.util.Set;
  */
 public class VideoCheckWebView extends WebView {
 
+    /**
+     * 需要设置 UserAgent 的 网站
+     */
     private Map<String, String> mUserAgentMap;
 
+    /**
+     * 是否是桌面模式
+     */
+    private boolean isDesktopMode = false;
+
+    /**
+     * WebView 默认的 UserAgent
+     */
     private String mDefaultUserAgent;
 
     public VideoCheckWebView(Context context) {
@@ -81,6 +93,10 @@ public class VideoCheckWebView extends WebView {
     }
 
     private String getUserAgentOfUrl(String url) {
+        //如果是桌面模式，就直接返回桌面版的 UserAgent
+        if (isDesktopMode) return VideoCheckConstant.DESKTOP_USER_AGENT;
+
+        //在 Map 里面找对应的 UserAgent
         Uri uri = Uri.parse(url);
         String host = uri.getHost();
         if (!TextUtils.isEmpty(host) && mUserAgentMap != null && mUserAgentMap.size() > 0) {
@@ -93,10 +109,11 @@ public class VideoCheckWebView extends WebView {
                 }
             }
         }
+        //如果没找到就使用 WebView 默认的 UA
         return mDefaultUserAgent;
     }
 
-    public void setUserAgentMap(Map<String, String> userAgentMap) {
+    public void initUserAgentMap(Map<String, String> userAgentMap) {
         this.mUserAgentMap = userAgentMap;
     }
 
@@ -122,5 +139,13 @@ public class VideoCheckWebView extends WebView {
 
     public interface JavascriptCallback {
         void jsCheckVideoResult(String url, String quality);
+    }
+
+    public boolean isDesktopMode() {
+        return isDesktopMode;
+    }
+
+    public void setDesktopMode(boolean desktopMode) {
+        isDesktopMode = desktopMode;
     }
 }

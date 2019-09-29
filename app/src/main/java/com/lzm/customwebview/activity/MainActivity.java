@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
          * 设置 UserAgent Map json
          */
         Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {}.getType());
-        webView.setUserAgentMap(map);
+        webView.initUserAgentMap(map);
 
         /*
          * 设置js 回调监听
