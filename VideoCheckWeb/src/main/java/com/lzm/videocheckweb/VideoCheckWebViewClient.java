@@ -1,10 +1,12 @@
 package com.lzm.videocheckweb;
 
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -52,8 +54,19 @@ public abstract class VideoCheckWebViewClient extends WebViewClient {
     };
 
     @Override
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+        super.onReceivedSslError(view, handler, error);
+        handler.proceed();
+    }
+
+    @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (url.startsWith("http")) {
+        //某些网站会重定向至非有效网址，return true 取消加载该网址
+        if (url == null || !url.startsWith("http") || url.contains("ucweb.com")) {
+            return true;
+        }
+        final WebView.HitTestResult hitTestResult = view.getHitTestResult();
+        if (!TextUtils.isEmpty(url) && hitTestResult == null) {
             view.loadUrl(url);
             return true;
         }
@@ -239,14 +252,17 @@ public abstract class VideoCheckWebViewClient extends WebViewClient {
         return false;
     }
 
-    public abstract void webViewLoadJs(String jsCode);
+    public abstract void webViewLoadJs(@NonNull String jsCode);
 
+    @NonNull
     public abstract List<String> getJsHandlerWhiteList();
 
+    @NonNull
     public abstract String getPartInjectJSContent();
 
-    public abstract void localCheckVideoResult(String url);
+    public abstract void localCheckVideoResult(@NonNull String url);
 
+    @NonNull
     public abstract String getCurrentUrl();
 
 }

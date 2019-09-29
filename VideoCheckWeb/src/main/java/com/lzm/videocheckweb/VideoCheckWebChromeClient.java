@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 /*
  * (●ﾟωﾟ●)
  *
@@ -63,8 +65,10 @@ public abstract class VideoCheckWebChromeClient extends WebChromeClient {
         super.onProgressChanged(view, newProgress);
     }
 
+    @NonNull
     public abstract ViewGroup getFullScreenVideoContainer();
 
+    @NonNull
     public abstract String getCoreInjectJSContent();
 
     public abstract void requestOrientationPortrait();

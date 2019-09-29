@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
         /*
          * 设置 UserAgent Map json
          */
-        Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {}.getType());
+        Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {
+        }.getType());
         webView.initUserAgentMap(map);
 
         /*
@@ -136,17 +137,19 @@ public class MainActivity extends AppCompatActivity {
     class CustomWebViewClient extends VideoCheckWebViewClient {
 
         @Override
-        public void webViewLoadJs(String jsCode) {
+        public void webViewLoadJs(@NotNull String jsCode) {
             //WebView 执行 js 代码
             webView.loadUrl(jsCode);
         }
 
+        @NotNull
         @Override
         public List<String> getJsHandlerWhiteList() {
             //返回 js 白名单 str
             return Constant.JAVASCRIPT_HANDLER_WHITE_LIST;
         }
 
+        @NotNull
         @Override
         public String getPartInjectJSContent() {
             //返回 part js code
@@ -154,11 +157,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void localCheckVideoResult(String url) {
+        public void localCheckVideoResult(@NotNull String url) {
             //本地拦截的回调
             whetherOnlyUrl(url, "");
         }
 
+        @NotNull
         @Override
         public String getCurrentUrl() {
             //返回当前正在浏览的 URL
@@ -168,12 +172,14 @@ public class MainActivity extends AppCompatActivity {
 
     class CustomWebChromeClient extends VideoCheckWebChromeClient {
 
+        @NotNull
         @Override
         public ViewGroup getFullScreenVideoContainer() {
             //WebView 横屏播放时，播放器的容器
             return mFlViewContainer;
         }
 
+        @NotNull
         @Override
         public String getCoreInjectJSContent() {
             //返回 core js code
