@@ -172,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
 
     class CustomWebChromeClient extends VideoCheckWebChromeClient {
 
-        @NotNull
         @Override
         public ViewGroup getFullScreenVideoContainer() {
             //WebView 横屏播放时，播放器的容器

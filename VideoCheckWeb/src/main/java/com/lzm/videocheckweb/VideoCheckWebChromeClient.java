@@ -65,7 +65,6 @@ public abstract class VideoCheckWebChromeClient extends WebChromeClient {
         super.onProgressChanged(view, newProgress);
     }
 
-    @NonNull
     public abstract ViewGroup getFullScreenVideoContainer();
 
     @NonNull
