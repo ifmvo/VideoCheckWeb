@@ -2,6 +2,8 @@ package com.lzm.videocheckweb.common;
 
 import android.util.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -12,6 +14,8 @@ import okhttp3.OkHttpClient;
  * Created by Matthew Chen on 2019-09-29.
  */
 public class VideoCheckConstant {
+
+//    public static final Map<String, Map<String, String>> REQUEST_HEADER_CACHE = new HashMap<>();
 
     public static final CustomArrayList<String> READ_BODY_MIME_TYPE = new CustomArrayList<String>()
             .addObject("text")

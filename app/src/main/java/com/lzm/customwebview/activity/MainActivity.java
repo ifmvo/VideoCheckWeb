@@ -89,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
         /*
          * 设置 UserAgent Map json
          */
-        Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {
-        }.getType());
+        Map<String, String> map = new GsonBuilder().create().fromJson(Constant.userAgentMapJson, new TypeToken<Map<String, String>>() {}.getType());
         webView.initUserAgentMap(map);
 
         /*

@@ -89,7 +89,7 @@ public abstract class VideoCheckWebViewClient extends WebViewClient {
                         if ("accept".equals(key)) accept = value;
                         builder.add(key, value);
                     }
-//                Constant.REQUEST_HEADER_CACHE.put(url, requestHeaders);
+//                    VideoCheckConstant.REQUEST_HEADER_CACHE.put(url, requestHeaders);
                 }
                 if (accept.contains("html") || isNeedInspectUrl(host, url)) {
                     url = ("HTTPS".equals(shame) && host.contains("_")) ? "http" + url.substring(5) : url;
