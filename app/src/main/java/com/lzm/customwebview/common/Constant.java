@@ -12,27 +12,29 @@ public class Constant {
 
     public static final ConcurrentHashMap<String, Map<String, String>> REQUEST_HEADER_CACHE = new ConcurrentHashMap<>();
 
-    public static final CustomArrayList<String> JAVASCRIPT_HANDLER_WHITE_LIST = new CustomArrayList<>()
-            .addObject("viu.tv")
-            .addObject("facebook.com")
-            .addObject("bilibili.com")
-            .addObject("altbalaji.com")
-            .addObject("erosnow.com")
-            .addObject("dailymotion.com")
-            .addObject("xvideos")
-            .addObject("tiktok.com")
-            .addObject("pornhub.com")
-            .addObject("xnxx")
-            .addObject("openloadmovies.bz")
-            .addObject("timesnownews.com")
-            .addObject("tubidy.mobi")
-            .addObject("vimeo.com")
-            .addObject("news18.com")
-            .addObject("soundcloud.com")
-            .addObject("steampowered.com")
-            .addObject("liveleak.com")
-            .addObject("instagram.com")
-            .addObject("xhamster");
+    public static final String JAVASCRIPT_HANDLER_WHITE_LIST = "openloadmovies.bz,dailymotion.com,pornhub.com,timesnownews.com,vimeo.com,news18.com,steampowered.com,xhamster,hungama.com,bilibili.com,facebook.com";
+
+//    public static final CustomArrayList<String> JAVASCRIPT_HANDLER_WHITE_LIST = new CustomArrayList<>()
+//            .addObject("viu.tv")
+//            .addObject("facebook.com")
+//            .addObject("bilibili.com")
+//            .addObject("altbalaji.com")
+//            .addObject("erosnow.com")
+//            .addObject("dailymotion.com")
+//            .addObject("xvideos")
+//            .addObject("tiktok.com")
+//            .addObject("pornhub.com")
+//            .addObject("xnxx")
+//            .addObject("openloadmovies.bz")
+//            .addObject("timesnownews.com")
+//            .addObject("tubidy.mobi")
+//            .addObject("vimeo.com")
+//            .addObject("news18.com")
+//            .addObject("soundcloud.com")
+//            .addObject("steampowered.com")
+//            .addObject("liveleak.com")
+//            .addObject("instagram.com")
+//            .addObject("xhamster");
 
     public static String CORE_INJECT_JAVASCRIPT_CONTENT = "";
     public static String PART_INJECT_JAVASCRIPT_CONTENT = "";

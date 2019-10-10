@@ -31,6 +31,7 @@ import com.lzm.videocheckweb.VideoCheckWebViewClient;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public List<String> getJsHandlerWhiteList() {
             //返回 js 白名单 str
-            return Constant.JAVASCRIPT_HANDLER_WHITE_LIST;
+            return Arrays.asList(Constant.JAVASCRIPT_HANDLER_WHITE_LIST.split(","));
         }
 
         @NotNull
